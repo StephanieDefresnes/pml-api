@@ -7,6 +7,8 @@ use App\Repository\PostRepository;
 use App\Service\StatusObject;
 use App\Service\CategoryObject;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,30 +64,27 @@ class PostController extends AbstractController
         $this->em->flush();
 
         $jsonPost = $this->serializer->serialize($post, 'json', ['groups' => 'getBooks']);
-        $location = $urlGenerator->generate(
-                        'posts_get',
-                        ['id' => $post->getId()],
-                        UrlGeneratorInterface::ABSOLUTE_URL
-                    );
+        
+        $location = $urlGenerator->generate('posts_get', ['id' => $post->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return new JsonResponse($jsonPost, Response::HTTP_CREATED, ["Location" => $location], true);
     }
     
     
     #[Route('/{id}', name:"updatePost", methods:['PUT'])]
-    public function updatePost( Request $request, Post $currentPost ): JsonResponse 
+    public function updatePost( Request $request, Post $post ): JsonResponse 
     {
-        $post = $this->serializer->deserialize($request->getContent(), 
+        $updatedPost = $this->serializer->deserialize($request->getContent(), 
                 Post::class, 
                 'json', 
-                [AbstractNormalizer::OBJECT_TO_POPULATE => $currentPost]);
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $post]);
         
         $content = $request->toArray();
         $post->setStatus( $this->statusObject->get( $content['status']  ) );
         $post->setCategory( $this->categoryObject->get( $content['category'] ) );
         
-        $this->em->persist($post);
+        $this->em->persist($updatedPost);
         $this->em->flush();
-        
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
    }
 }

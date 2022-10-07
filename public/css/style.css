@@ -1,0 +1,15 @@
+@font-face{
+    font-family : 'Blippo';
+    src : url('../fonts/BlippoBlackBT.ttf') format('truetype');
+}
+html,  body { background: #ffda27; }
+div {
+    width: 200px;
+    margin: calc(50vh - 250px) auto 0;
+    text-align:center;
+}
+p {
+    font-family : 'Blippo';
+    font-size: 28px;
+    color: #0096cc;
+}
