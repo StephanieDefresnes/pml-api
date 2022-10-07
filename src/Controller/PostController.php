@@ -8,6 +8,7 @@ use App\Service\StatusObject;
 use App\Service\CategoryObject;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,6 +43,7 @@ class PostController extends AbstractController
     }
     
     #[Route('/api/posts/{id}', name: 'delete_post', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour supprimer un post")]
     public function deletePost( Post $post ): JsonResponse 
     {
         $this->em->remove($post);
@@ -51,6 +53,7 @@ class PostController extends AbstractController
     }
     
     #[Route('/api/posts/', name:"add_post", methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour ajouter un post")]
     public function addPost( Request $request, UrlGeneratorInterface $urlGenerator ): JsonResponse 
     {
         $post = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
@@ -70,7 +73,8 @@ class PostController extends AbstractController
     }
     
     
-    #[Route('/api/{id}', name:"updatePost", methods:['PUT'])]
+    #[Route('/api/posts/{id}', name:"updatePost", methods:['PUT'])]
+    #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour modifier un post")]
     public function updatePost( Request $request, Post $post ): JsonResponse 
     {
         $updatedPost = $this->serializer->deserialize($request->getContent(), 
