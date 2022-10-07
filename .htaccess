@@ -1,6 +1,6 @@
 RewriteEngine on
 RewriteCond %{SERVER_PORT} 80
-RewriteRule ^(.*)$ https://pml-api.twxdesig.com/$1 [R,L]
+RewriteRule ^(.*)$ https://api.playmalife.com/$1 [R,L]
 
 RewriteEngine on
 RewriteBase /

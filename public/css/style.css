@@ -2,11 +2,19 @@
     font-family : 'Blippo';
     src : url('../fonts/BlippoBlackBT.ttf') format('truetype');
 }
-html,  body { background: #ffda27; }
+html, body {
+    background: #ffda27;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
 div {
-    width: 200px;
-    margin: calc(50vh - 250px) auto 0;
-    text-align:center;
+    width: 100%;
+    top: calc(50% - 250px);
+    text-align: center;
+    position: absolute;
+    bottom: 0;
 }
 p {
     font-family : 'Blippo';
