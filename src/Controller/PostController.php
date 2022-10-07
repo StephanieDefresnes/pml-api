@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/posts', name: 'post_api')]
 class PostController extends AbstractController
 {
     public function __construct(
@@ -27,7 +26,7 @@ class PostController extends AbstractController
         private CategoryObject $categoryObject,
     ){}
     
-    #[Route('/', name: 'posts', methods: ['GET'])]
+    #[Route('/posts', name: 'posts', methods: ['GET'])]
     public function getPosts(): JsonResponse
     {
         $posts = $this->postRepository->findAll();
@@ -35,14 +34,14 @@ class PostController extends AbstractController
         return new JsonResponse($jsonPosts, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/{id}', name: 'posts_get', methods: ['GET'])]
+    #[Route('/posts/{id}', name: 'posts_get', methods: ['GET'])]
     public function getPost( Post $post ): JsonResponse
     {
         $jsonPost = $this->serializer->serialize($post, 'json', ['groups' => 'getPosts']);
         return new JsonResponse($jsonPost, Response::HTTP_OK, [], true);
     }
     
-    #[Route('/{id}', name: 'delete_post', methods: ['DELETE'])]
+    #[Route('/api/posts/{id}', name: 'delete_post', methods: ['DELETE'])]
     public function deletePost( Post $post ): JsonResponse 
     {
         $this->em->remove($post);
@@ -51,7 +50,7 @@ class PostController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
     
-    #[Route('/', name:"add_post", methods: ['POST'])]
+    #[Route('/api/posts/', name:"add_post", methods: ['POST'])]
     public function addPost( Request $request, UrlGeneratorInterface $urlGenerator ): JsonResponse 
     {
         $post = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
@@ -71,7 +70,7 @@ class PostController extends AbstractController
     }
     
     
-    #[Route('/{id}', name:"updatePost", methods:['PUT'])]
+    #[Route('/api/{id}', name:"updatePost", methods:['PUT'])]
     public function updatePost( Request $request, Post $post ): JsonResponse 
     {
         $updatedPost = $this->serializer->deserialize($request->getContent(), 
