@@ -7,8 +7,37 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "getPost",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getPosts")
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "deletePost",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getPosts", excludeIf = "expr(not is_granted('ROLE_ADMIN'))"),
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "update",
+ *      href = @Hateoas\Route(
+ *          "updatePost",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getPosts", excludeIf = "expr(not is_granted('ROLE_ADMIN'))"),
+ * )
+ */
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
 {

@@ -15,7 +15,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use JMS\Serializer\Serializer;
+use JMS\Serializer\SerializerInterface;
+use JMS\Serializer\SerializationContext;
 
 class PostController extends AbstractController
 {
@@ -27,22 +29,24 @@ class PostController extends AbstractController
         private CategoryObject $categoryObject,
     ){}
     
-    #[Route('/posts', name: 'posts', methods: ['GET'])]
+    #[Route('/posts', name: 'getPosts', methods: ['GET'])]
     public function getPosts(): JsonResponse
     {
         $posts = $this->postRepository->findAll();
-        $jsonPosts = $this->serializer->serialize($posts, 'json', ['groups' => 'getPosts']);
+        $context = SerializationContext::create()->setGroups(['getPosts']);
+        $jsonPosts = $this->serializer->serialize($posts, 'json', $context);
         return new JsonResponse($jsonPosts, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/posts/{id}', name: 'posts_get', methods: ['GET'])]
+    #[Route('/posts/{id}', name: 'getPost', methods: ['GET'])]
     public function getPost( Post $post ): JsonResponse
     {
-        $jsonPost = $this->serializer->serialize($post, 'json', ['groups' => 'getPosts']);
+        $context = SerializationContext::create()->setGroups(['getPosts']);
+        $jsonPost = $this->serializer->serialize($post, 'json', $context);
         return new JsonResponse($jsonPost, Response::HTTP_OK, [], true);
     }
     
-    #[Route('/api/posts/{id}', name: 'delete_post', methods: ['DELETE'])]
+    #[Route('/api/posts/{id}', name: 'deletePost', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour supprimer un post")]
     public function deletePost( Post $post ): JsonResponse 
     {
@@ -52,11 +56,14 @@ class PostController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
     
-    #[Route('/api/posts/', name:"add_post", methods: ['POST'])]
+    #[Route('/api/posts/', name:"addPost", methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour ajouter un post")]
     public function addPost( Request $request, UrlGeneratorInterface $urlGenerator ): JsonResponse 
     {
-        $post = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
+        $post = new Post();
+        $newPost = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
+        $post->setType($newPost->getType());
+        $post->setDateCreate(new \DateTime('now'));
         
         $content = $request->toArray();
         $post->setStatus( $this->statusObject->get( $content['status']  ) );
@@ -67,7 +74,7 @@ class PostController extends AbstractController
 
         $jsonPost = $this->serializer->serialize($post, 'json', ['groups' => 'getBooks']);
         
-        $location = $urlGenerator->generate('posts_get', ['id' => $post->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $location = $urlGenerator->generate('getPost', ['id' => $post->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return new JsonResponse($jsonPost, Response::HTTP_CREATED, ["Location" => $location], true);
     }
@@ -77,16 +84,15 @@ class PostController extends AbstractController
     #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour modifier un post")]
     public function updatePost( Request $request, Post $post ): JsonResponse 
     {
-        $updatedPost = $this->serializer->deserialize($request->getContent(), 
-                Post::class, 
-                'json', 
-                [AbstractNormalizer::OBJECT_TO_POPULATE => $post]);
+        $newPost = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
+        $post->setType($newPost->getType());
+        $post->setDateUpdate(new \DateTime('now'));
         
         $content = $request->toArray();
         $post->setStatus( $this->statusObject->get( $content['status']  ) );
         $post->setCategory( $this->categoryObject->get( $content['category'] ) );
         
-        $this->em->persist($updatedPost);
+        $this->em->persist($post);
         $this->em->flush();
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
    }
