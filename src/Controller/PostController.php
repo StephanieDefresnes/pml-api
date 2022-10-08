@@ -4,8 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Repository\PostRepository;
-use App\Service\StatusObject;
-use App\Service\CategoryObject;
+use App\Repository\CategoryRepository;
+use App\Repository\StatusRepository;
+use App\Service\VersioningService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -25,8 +26,9 @@ class PostController extends AbstractController
         private EntityManagerInterface $em,
         private PostRepository $postRepository,
         private SerializerInterface $serializer,
-        private StatusObject $statusObject,
-        private CategoryObject $categoryObject,
+        private CategoryRepository $categoryRepo,
+        private StatusRepository $statusRepo,
+        private VersioningService $versioning,
     ){}
     
     #[Route('/posts', name: 'getPosts', methods: ['GET'])]
@@ -34,14 +36,17 @@ class PostController extends AbstractController
     {
         $posts = $this->postRepository->findAll();
         $context = SerializationContext::create()->setGroups(['getPosts']);
+        $context->setVersion( $this->versioning->getVersion() );
         $jsonPosts = $this->serializer->serialize($posts, 'json', $context);
         return new JsonResponse($jsonPosts, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/posts/{id}', name: 'getPost', methods: ['GET'])]
+    #[Route('/api/posts/{id}', name: 'getPost', methods: ['GET'])] // token test
+//    #[Route('/posts/{id}', name: 'getPost', methods: ['GET'])]
     public function getPost( Post $post ): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(['getPosts']);
+        $context->setVersion( $this->versioning->getVersion() );
         $jsonPost = $this->serializer->serialize($post, 'json', $context);
         return new JsonResponse($jsonPost, Response::HTTP_OK, [], true);
     }
@@ -66,8 +71,8 @@ class PostController extends AbstractController
         $post->setDateCreate(new \DateTime('now'));
         
         $content = $request->toArray();
-        $post->setStatus( $this->statusObject->get( $content['status']  ) );
-        $post->setCategory( $this->categoryObject->get( $content['category'] ) );
+        $post->setStatus( $this->statusRepo->findOneBy([ 'name' => $content['status'] ]) );
+        $post->setCategory( $this->categoryRepo->findOneBy([ 'name' => $content['category'] ]) );
         
         $this->em->persist($post);
         $this->em->flush();
@@ -89,8 +94,8 @@ class PostController extends AbstractController
         $post->setDateUpdate(new \DateTime('now'));
         
         $content = $request->toArray();
-        $post->setStatus( $this->statusObject->get( $content['status']  ) );
-        $post->setCategory( $this->categoryObject->get( $content['category'] ) );
+        $post->setStatus( $this->statusRepo->findOneBy([ 'name' => $content['status'] ]) );
+        $post->setCategory( $this->categoryRepo->findOneBy([ 'name' => $content['category'] ]) );
         
         $this->em->persist($post);
         $this->em->flush();
