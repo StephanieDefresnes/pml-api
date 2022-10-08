@@ -41,8 +41,7 @@ class PostController extends AbstractController
         return new JsonResponse($jsonPosts, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/api/posts/{id}', name: 'getPost', methods: ['GET'])] // token test
-//    #[Route('/posts/{id}', name: 'getPost', methods: ['GET'])]
+    #[Route('/posts/{id}', name: 'getPost', methods: ['GET'])]
     public function getPost( Post $post ): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(['getPosts']);
