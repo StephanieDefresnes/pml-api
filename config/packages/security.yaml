@@ -2,9 +2,18 @@ security:
     enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
+#        App\Entity\User:
+#            algorithm: 'auto'
+#        App\Entity\User: 'auto'
+#        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+#            algorithm: 'auto'
+#            cost: 15
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
         App\Entity\User:
             algorithm: auto
+#            cost: 15
+#            time_cost: 3
+#            memory_cost: 10
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
@@ -27,9 +36,8 @@ security:
             # switch_user: true
 
         register:
-            pattern: ^/api/register
+            pattern: ^/register
             stateless: true
-            anonymous: true
             
         login:
             pattern: ^/api/login
@@ -47,9 +55,9 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/posts, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_ADMIN }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/register, roles: PUBLIC_ACCESS }
 
 when@test:
     security:
