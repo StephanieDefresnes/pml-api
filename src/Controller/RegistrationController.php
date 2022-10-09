@@ -30,7 +30,7 @@ class RegistrationController extends AbstractController
         $plaintextPassword = $newUser->getPassword();
         
         if ( empty($email) || empty($plaintextPassword) ) {
-            return $this->respondValidationError("Invalid Password or Email");
+            return new JsonResponse('Invalid Password or Email', Response::HTTP_OK, [], true);
         }
         
         $user = new User();
