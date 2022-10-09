@@ -10,13 +10,11 @@ use App\Service\VersioningService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
 
@@ -60,7 +58,7 @@ class PostController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
     
-    #[Route('/api/posts/', name:"addPost", methods: ['POST'])]
+    #[Route('/api/posts/', name: 'addPost', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour ajouter un post")]
     public function addPost( Request $request, UrlGeneratorInterface $urlGenerator ): JsonResponse 
     {
@@ -84,7 +82,7 @@ class PostController extends AbstractController
     }
     
     
-    #[Route('/api/posts/{id}', name:"updatePost", methods:['PUT'])]
+    #[Route('/api/posts/{id}', name: 'updatePost', methods:['PUT'])]
     #[IsGranted('ROLE_ADMIN', message: "Vous n'avez pas les droits suffisants pour modifier un post")]
     public function updatePost( Request $request, Post $post ): JsonResponse 
     {
