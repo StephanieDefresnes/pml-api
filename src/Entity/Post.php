@@ -58,7 +58,7 @@ class Post
 
     #[ORM\Column(length: 255)]
     #[Groups(['getPosts'])]
-    private ?string $type = null;
+    private ?string $typePost = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['getPosts'])]
@@ -120,14 +120,14 @@ class Post
         return $this;
     }
 
-    public function getType(): ?string
+    public function getTypePost(): ?string
     {
-        return $this->type;
+        return $this->typePost;
     }
 
-    public function setType(string $type): self
+    public function setTypePost(string $typePost): self
     {
-        $this->type = $type;
+        $this->type = $typePost;
 
         return $this;
     }
